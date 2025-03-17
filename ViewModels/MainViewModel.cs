@@ -14,6 +14,7 @@ using System.Collections.ObjectModel;
 using Microsoft.Xaml.Behaviors.Media;
 using Microsoft.EntityFrameworkCore;
 using System.Windows.Controls;
+using System.Net;
 
 namespace DataBooks.ViewModels
 {
@@ -22,6 +23,7 @@ namespace DataBooks.ViewModels
         // Команды для View
         public ICommand AddBookCommand { get; }
         public ICommand AddBookReviewCommand { get; }
+        public ICommand SortBooksCommand { get; }
 
         // Переменные для временного хранения при заполнении данных о книге
         private string? _title;
@@ -39,11 +41,15 @@ namespace DataBooks.ViewModels
         private string? _reviewText;
         private int? _selectedRating;
 
+        private string? _selectedSortOption;
+
         // Коллекция для загрузки книг в память из БД
         private ObservableCollection<BookListDto> _bookListDtos;
 
         // Множество вариантов оценки
         private List<int> _reviewMarks;
+
+        private List<string> _sortingOptions;
 
         public List<int> ReviewMarks
         {
@@ -51,6 +57,16 @@ namespace DataBooks.ViewModels
             set
             {
                 _reviewMarks = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public List<string> SortingOptions
+        {
+            get => _sortingOptions;
+            set
+            {
+                _sortingOptions = value;
                 OnPropertyChanged();
             }
         }
@@ -165,11 +181,25 @@ namespace DataBooks.ViewModels
             }
         }
 
+        public string? SelectedSortOption
+        {
+            get => _selectedSortOption;
+            set
+            {
+                _selectedSortOption = value;
+                OnPropertyChanged();
+            }
+        }
+
         public MainViewModel()
         {
             ReviewMarks = new List<int> { 1, 2, 3, 4, 5 };
+            SortingOptions = new List<string> { "Наивысший рейтинг", "Сначала новые", "Сначала дешевые" };
+
             AddBookCommand = new RelayCommand(_ => AddBook());
+            SortBooksCommand = new RelayCommand(_ => SortBooks());
             AddBookReviewCommand = new RelayCommand(_ => AddBookReview());
+
             LoadBooks();
         }
 
@@ -274,6 +304,62 @@ namespace DataBooks.ViewModels
                 {
                     BookListDtos = new ObservableCollection<BookListDto>(books);
                 }
+            }
+        }
+
+        private void SortBooks()
+        {
+            try
+            {
+                using (var db = new AppDbContext())
+                {
+                    switch (SelectedSortOption)
+                    {
+                        case "Наивысший рейтинг":
+
+                            var books = db.Books
+                                          .MapBookToDto()
+                                          .OrderBooksBy(OrderByOptions.ByVotes)
+                                          .ToList();
+
+                            if (books != null)
+                                BookListDtos = new ObservableCollection<BookListDto>(books);
+
+                            return;
+
+                        case "Сначала новые":
+
+                            var books1 = db.Books
+                                          .MapBookToDto()
+                                          .OrderBooksBy(OrderByOptions.ByPublicationDate)
+                                          .ToList();
+
+                            if (books1 != null)
+                                BookListDtos = new ObservableCollection<BookListDto>(books1);
+
+                            return;
+
+                        case "Сначала дешевые":
+
+                            var books2 = db.Books
+                                          .MapBookToDto()
+                                          .OrderBooksBy(OrderByOptions.ByPriceLowestFirst)
+                                          .ToList();
+
+                            if (books2 != null)
+                                BookListDtos = new ObservableCollection<BookListDto>(books2);
+
+                            return;
+
+                        default:
+                            return;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при попытке отсортировать список: {ex.Message}\n{ex.InnerException?.Message}", 
+                    "Ошибка сортировки", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

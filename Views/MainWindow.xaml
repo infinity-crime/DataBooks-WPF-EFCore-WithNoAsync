@@ -7,7 +7,7 @@
         xmlns:cnvrt="clr-namespace:DataBooks.Models.ViewConverters"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" xmlns:viewmodels="clr-namespace:DataBooks.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
         mc:Ignorable="d"
-        Title="Data Books" Height="450" Width="800">
+        Title="Data Books" Height="600" Width="800">
 
     <mah:MetroWindow.Resources>
         <cnvrt:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
@@ -24,7 +24,7 @@
         <!-- Форма для добавления книги -->
 
         <StackPanel Grid.Row="0" Width="390" HorizontalAlignment="Left"
-                    VerticalAlignment="Center">
+                    VerticalAlignment="Top" Margin="0 15 0 0">
 
             <TextBox x:Name="TitleTextBox" Margin="3" 
                      Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
@@ -44,7 +44,7 @@
         </StackPanel>
 
         <StackPanel Width="390" HorizontalAlignment="Right"
-                    VerticalAlignment="Center">
+                    VerticalAlignment="Top" Margin="15">
 
             <TextBox x:Name="PriceTextBox" Margin="3"
                      Text="{Binding Price, UpdateSourceTrigger=PropertyChanged}"
@@ -64,6 +64,37 @@
                     Width="160"
                     Background="AliceBlue"></Button>
         </StackPanel>
+
+        <Grid Grid.Row="0" VerticalAlignment="Bottom">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <ComboBox Grid.Row="0" Grid.Column="0"
+                      Width="185"
+                      HorizontalAlignment="Left"
+                      Margin="0 0 15 15"
+                      mah:TextBoxHelper.Watermark="Сортировать"
+                      ItemsSource="{Binding SortingOptions}"
+                      SelectedItem="{Binding SelectedSortOption}">
+            </ComboBox>
+
+            <Button Grid.Column="1"
+                    Width="160" Height="25"
+                    Margin="0 0 15 15"
+                    HorizontalAlignment="Right"
+                    Content="Применить сортировку"
+                    Command="{Binding SortBooksCommand}">
+                
+            </Button>
+            
+        </Grid>
         
         <!-- Панель отображения книг с бд -->
         <Grid Grid.Row="1" Margin="5">
@@ -85,7 +116,7 @@
                                     Margin="5">
 
                             <TextBlock FontWeight="Bold" Text="{Binding Title, StringFormat=' {0}: '}"></TextBlock>
-                            <TextBlock Text="{Binding PublishedOn, StringFormat='Дата выхода: {0} | '}"></TextBlock>
+                            <TextBlock Text="{Binding PublishedOnDisplay, StringFormat='Дата выхода: {0} | '}"></TextBlock>
                             <TextBlock Text="{Binding Publisher, StringFormat='Издатель: {0} | '}"></TextBlock>
                             <TextBlock Text="{Binding Author, StringFormat='Автор: {0} | '}"></TextBlock>
                             <TextBlock Text="{Binding TagStrings, StringFormat='Тег: {0} | '}"></TextBlock>
