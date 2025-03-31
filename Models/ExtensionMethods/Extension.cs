@@ -11,8 +11,10 @@ namespace DataBooks.Models.ExtensionMethods
 {
     public enum OrderByOptions
     {
+        ByTitle,
         ByVotes,
         ByPriceLowestFirst,
+        ByPriceHighestFirst,
         ByPublicationDate
     }
 
@@ -59,6 +61,12 @@ namespace DataBooks.Models.ExtensionMethods
 
                 case OrderByOptions.ByPriceLowestFirst:
                     return books.OrderBy(b => (double)b.Price);
+
+                case OrderByOptions.ByPriceHighestFirst:
+                    return books.OrderByDescending(b => (double)b.Price);
+
+                case OrderByOptions.ByTitle:
+                    return books.OrderBy(b => b.Title);
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(options), options, null);

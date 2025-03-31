@@ -19,7 +19,7 @@ namespace DataBooks.Models.Context
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite(@"Data Source=YOUR\\PATH");
+            optionsBuilder.UseSqlite(@"Data Source=C:\Users\User\source\repos\DataBooks\bin\Debug\net9.0-windows\dataBooksMain.db");
         }
     }
 }

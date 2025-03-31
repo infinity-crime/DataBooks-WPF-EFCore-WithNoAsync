@@ -194,7 +194,8 @@ namespace DataBooks.ViewModels
         public MainViewModel()
         {
             ReviewMarks = new List<int> { 1, 2, 3, 4, 5 };
-            SortingOptions = new List<string> { "Наивысший рейтинг", "Сначала новые", "Сначала дешевые" };
+            SortingOptions = new List<string> { "Наивысший рейтинг", "Сначала новые", "Сначала дешевые", 
+            "Сначала дорогие", "По названию"};
 
             AddBookCommand = new RelayCommand(_ => AddBook());
             SortBooksCommand = new RelayCommand(_ => SortBooks());
@@ -246,6 +247,8 @@ namespace DataBooks.ViewModels
                 }
 
                 Title = Description = PublishedOn = Publisher = Price = AuthorName = Tag = null;
+
+                SelectedSortOption = null;
 
                 LoadBooks();
             }
@@ -299,7 +302,10 @@ namespace DataBooks.ViewModels
         {
             using (var db = new AppDbContext())
             {
-                var books = db.Books.MapBookToDto().ToList();
+                var books = db.Books
+                    .AsNoTracking()
+                    .MapBookToDto()
+                    .ToList();
                 if(books != null)
                 {
                     BookListDtos = new ObservableCollection<BookListDto>(books);
@@ -348,6 +354,29 @@ namespace DataBooks.ViewModels
 
                             if (books2 != null)
                                 BookListDtos = new ObservableCollection<BookListDto>(books2);
+
+                            return;
+
+                        case "Сначала дорогие":
+
+                            var books3 = db.Books
+                                           .MapBookToDto()
+                                           .OrderBooksBy(OrderByOptions.ByPriceHighestFirst)
+                                           .ToList();
+
+                            if(books3 != null)
+                                BookListDtos = new ObservableCollection<BookListDto> (books3);
+
+                            return;
+
+                        case "По названию":
+                            var books4 = db.Books
+                                           .MapBookToDto()
+                                           .OrderBooksBy(OrderByOptions.ByTitle)
+                                           .ToList();
+
+                            if (books4 != null)
+                                BookListDtos = new ObservableCollection<BookListDto>(books4);
 
                             return;
 
